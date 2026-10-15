@@ -12,13 +12,6 @@ vesktop                     # Discord (Super+C scratchpad)
 zen-browser-bin             # in some repos (CachyOS), else the AUR
 localsend-bin
 obsidian-bin
-mp3tag
-puddletag
-ripperx
-ocenaudio-bin
 p7zip-gui                   # 7zFM (has a float rule)
 theclicker
 xclicker
-antigravity
-docker-desktop
-microsoft-edge-canary-bin
