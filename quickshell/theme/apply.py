@@ -27,6 +27,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # -I leaves the script's folder off sys.path
 import gtkgen  # noqa: E402
+import icongen  # noqa: E402
 
 REQUIRED = ("base", "shadow", "highlight", "accent", "text", "outline")
 RELOAD_TIMEOUT = 10  # seconds per reload command
@@ -267,7 +268,10 @@ def main():
         msg = None if no_reload else reload(app, path)
         if msg:
             print(f"  reload     {msg}")
-    gtk_theme(roles, no_reload)
+    theme_changed = gtk_theme(roles, no_reload)
+    icons_changed = icon_theme(roles)
+    if (theme_changed or icons_changed) and not no_reload:
+        reload_gtk(theme_changed, icons_changed)
 
 
 def gtk_theme(roles, no_reload):
@@ -277,12 +281,12 @@ def gtk_theme(roles, no_reload):
     dst = os.path.join(themes, gtkgen.NAME)
     if not os.path.isdir(src):
         print(f"  skipped    {dst} ({gtkgen.SOURCE} not installed)")
-        return
+        return 0
     try:
         changed = gtkgen.generate(roles, src, dst)
     except Exception as e:  # a broken GTK step must never fail the whole theme switch
         print(f"  gtk theme failed: {type(e).__name__}: {e}", file=sys.stderr)
-        return
+        return 0
     print(f"  {'wrote' if changed else 'unchanged'}     {dst}" + (f" ({changed} files)" if changed else ""))
     # libadwaita / GTK 4 apps read ~/.config/gtk-4.0 itself: keep its links on the generated theme,
     # but only replace a link that points into one of the two themes (never a real file of yours)
@@ -299,25 +303,48 @@ def gtk_theme(roles, no_reload):
         os.makedirs(os.path.dirname(link), exist_ok=True)
         os.symlink(want, link)
         print(f"  linked     {link}")
-    if changed and not no_reload:
-        reload_gtk()
+    return changed
 
 
-def reload_gtk():
+def icon_theme(roles):
+    """The hue-shifted icon theme (icongen.py): a new QsRetroIcons folder next to RetroismIcons."""
+    icons = os.path.expanduser("~/.local/share/icons")
+    src = os.path.join(icons, icongen.SOURCE)
+    dst = os.path.join(icons, icongen.NAME)
+    if not os.path.isdir(src):
+        print(f"  skipped    {dst} ({icongen.SOURCE} not installed in ~/.local/share/icons)")
+        return 0
+    try:
+        changed = icongen.generate(roles, src, dst)
+    except Exception as e:  # never fail the whole theme switch over icons
+        print(f"  icon theme failed: {type(e).__name__}: {e}", file=sys.stderr)
+        return 0
+    print(f"  {'wrote' if changed else 'unchanged'}     {dst}" + (f" ({changed} entries)" if changed else ""))
+    return changed
+
+
+def reload_gtk(theme_changed, icons_changed):
     """Running GTK apps only re-read a theme when its name changes: flip it away and back."""
     gs = shutil.which("gsettings")
     if not gs:
         return
+    for key, name, away, changed in (("gtk-theme", gtkgen.NAME, "Adwaita", theme_changed),
+                                      ("icon-theme", icongen.NAME, "hicolor", icons_changed)):
+        if changed:
+            flip(gs, key, name, away)
+
+
+def flip(gs, key, name, away):
     try:
-        cur = subprocess.run([gs, "get", "org.gnome.desktop.interface", "gtk-theme"], capture_output=True, text=True, timeout=RELOAD_TIMEOUT).stdout.strip()
+        cur = subprocess.run([gs, "get", "org.gnome.desktop.interface", key], capture_output=True, text=True, timeout=RELOAD_TIMEOUT).stdout.strip()
     except (OSError, subprocess.TimeoutExpired):
         return
-    if cur != f"'{gtkgen.NAME}'":
+    if cur != f"'{name}'":
         return
-    run([gs, "set", "org.gnome.desktop.interface", "gtk-theme", "Adwaita"])
+    run([gs, "set", "org.gnome.desktop.interface", key, away])
     time.sleep(0.4)
-    run([gs, "set", "org.gnome.desktop.interface", "gtk-theme", gtkgen.NAME])
-    print("  reload     GTK theme (gsettings flip)")
+    run([gs, "set", "org.gnome.desktop.interface", key, name])
+    print(f"  reload     {key} (gsettings flip)")
 
 
 if __name__ == "__main__":

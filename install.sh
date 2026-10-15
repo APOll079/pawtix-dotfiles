@@ -357,7 +357,8 @@ gset() {
 }
 
 # Colour files for every themed app, from the active palette. This also writes the recoloured GTK
-# theme QsRetro (theme/gtkgen.py, from the ClassicPlatinumStreamlined installed above); Quickshell
+# theme QsRetro and icon theme QsRetroIcons (theme/gtkgen.py, theme/icongen.py, from the two
+# linux-retroism themes installed above); Quickshell
 # does the same at start and on every theme change.
 generate_theme() {
     say "Theme files (colours for kitty, GTK, apps ...)"
@@ -369,14 +370,14 @@ generate_theme() {
 }
 
 gtk_theme() {
-    say "GTK theme (QsRetro, from ClassicPlatinumStreamlined) and icons (RetroismIcons)"
+    say "GTK theme (QsRetro) and icons (QsRetroIcons), generated from linux-retroism's two themes"
     if (( ! DRY )) && [[ ! -d "$HOME/.local/share/themes/QsRetro" ]]; then
         warn "QsRetro was not generated: is ClassicPlatinumStreamlined in ~/.local/share/themes? (run this again after installing it)"
         return
     fi
     ask "Make QsRetro the GTK theme (gsettings), with full font hinting?" y || { note "skipped"; return; }
     gset org.gnome.desktop.interface gtk-theme QsRetro
-    gset org.gnome.desktop.interface icon-theme RetroismIcons
+    gset org.gnome.desktop.interface icon-theme QsRetroIcons
     # GTK on Wayland takes hinting from gsettings, not settings.ini
     gset org.gnome.desktop.interface font-hinting full
     # The GTK 4 (libadwaita) links are kept by apply.py; make them here too if it could not
@@ -389,8 +390,8 @@ gtk_theme() {
             run ln -s "$HOME/.local/share/themes/QsRetro/gtk-4.0/$f" "$CONFIG/gtk-4.0/$f"
         fi
     done
-    [[ -d "$HOME/.local/share/icons/RetroismIcons" || -d /usr/share/icons/RetroismIcons ]] \
-        || warn "icon theme RetroismIcons not found (quickshell and xsettingsd use it)"
+    [[ -d "$HOME/.local/share/icons/RetroismIcons" ]] \
+        || warn "icon theme RetroismIcons not found in ~/.local/share/icons: QsRetroIcons is generated from it (quickshell's own icons use it as is)"
 }
 
 autologin() {
