@@ -21,7 +21,7 @@ Item numbers are the ids from the approval list. This file has two halves: **Pla
 - Launcher Hide / Uninstall (Hidden chip), keybind cheat sheet (Super+F1), Services panel (does `dinitctl --user list` / `--system list` print the format the parser expects? does System need doas to list?), Phone tab in the side panel (needs the KDE Connect app on the phone, same Wi-Fi, firewall ports 1714-1764)
 - Bluetooth pairing / trust / forget
 - GTK theme: restart Quickshell once (it writes QsRetro), then `gsettings set org.gnome.desktop.interface gtk-theme QsRetro`: Nemo, a GTK 4 app, a theme switch re-colouring open windows (the Adwaita flip), the buttons / checkboxes / selections in every theme
-- App themes: each app's one-time setup (CLAUDE.md "App themes"), then a theme switch: do Vesktop's variables, Spotify's colours, VSCodium's extension folder and Zen's @import really take effect?
+- App themes: each app's one-time setup (CLAUDE.md "App themes"), then a theme switch: do Vesktop's variables, VSCodium's extension folder and Zen's @import really take effect?
 - Wallpaper colours: "Set + colours" on a real wallpaper, the Themes menu card "wallpaper", plain Set while that theme is active, the palette surviving a restart
 - Wallpaper browser: Set on DP-1 / DP-2 / All, each fit mode, the choice coming back after a Quickshell restart and after a reboot (hyprpaper's error text and start-up timing are guesses)
 - Snipping overlay: region drag, Screen / All on DP-1, toast thumbnail and click; History multi-select, viewer, multi-copy paste, multi-delete
@@ -55,7 +55,7 @@ Rules relaxed for the theming run only: CLAUDE.md says not to touch non-cherry t
 - **Screen share picker**: cherry dialog (Screens / Windows tabs, thumbnails, Remember my choice) replacing the portal's default picker; `sharepicker.qml` + `scripts/share-picker.sh` + `hypr/xdph.conf`. No Region sharing (by choice)
 - **Desktop**: idle dim / lock / screens off (22), OSDs (23), session panel (24), HyprEmoji, Super+Q closes an open menu before it closes a window
 - **GTK theme** (33): `theme/gtkgen.py` recolours the installed ClassicPlatinumStreamlined into `~/.local/share/themes/QsRetro` from the active palette (CSS + PNG assets), gtk settings files and `install.sh` (gsettings theme, icons, full font hinting) point at it
-- **App themes** (32): Vesktop, Spotify (Spicetify), VSCodium, Zen generated from the active palette (`apply.py` + templates; CSS / colour files only). Neovim (not installed) and Steam (needs Millennium) skipped
+- **App themes** (32): Vesktop, VSCodium, Zen generated from the active palette (`apply.py` + templates; CSS / colour files only). Neovim (not installed), Steam (needs Millennium) and Spotify (tried, looked awful, dropped) skipped
 - **Wallpaper colours** (31): `theme/wallcolors.py` (Pillow) makes a `wallpaper` palette from a picture (hue + colourfulness only, fixed lightness per role); browser button "Set + colours" / Shift+Enter; `apply.py wallpaper --palette FILE`
 - **Wallpaper browser** (14): Themes > Wallpapers..., grid of `~/Pictures/wallpapers` (settings.json "wallpaper.folder"), monitor + fit, set live through hyprpaper IPC, re-set at start from the state dir; hyprpaper.conf untouched
 - **Theme manager core** (30): `themes.json` + `apply.py` + templates drive kitty, Hyprland borders, hyprlock, fastfetch, btop, bottom (process monitor, grouped by program, Ctrl+Shift+Esc), fish and the emoji picker; `dusty` alongside cherry

@@ -6,7 +6,7 @@ selections, and small PNG assets (arrows, check boxes, sliders). This reads the 
 writes a recoloured copy next to it as QsRetro. The original is never touched and none of its
 files live in this repo.
 
-  grey ramp (by brightness):  0 -> outline, .35 -> dark, .69 -> shadow, .86 -> base, 1 -> highlight
+  grey ramp (by brightness):  0 -> outline, .35 -> dark, .69 -> shadow, .86 -> base, 1 -> paper (base mixed 90% towards white)
   the blue selection colour:  select_bar (its text: select_text), light blues tint towards it
   black text (`color: #000`): text
   red / orange / green (errors, warnings, success) stay as they are
@@ -38,9 +38,12 @@ def _lerp(a, b, t):
 
 class Recolour:
     def __init__(self, roles):
-        r = {k: _rgb(roles[k]) for k in ("outline", "dark", "shadow", "base", "highlight", "text", "select_bar", "select_text")}
+        r = {k: _rgb(roles[k]) for k in ("outline", "dark", "shadow", "base", "light", "text", "select_bar", "select_text")}
+        # "Paper": the white of content areas (file lists, text fields). Only a trace of the theme's
+        # base colour, so it reads as white and the tinted chrome around it has something to stand against
+        r["paper"] = _lerp(r["base"], (255, 255, 255), 0.9)
         self.r = r
-        self.ramp = [(0.0, r["outline"]), (0.35, r["dark"]), (0.69, r["shadow"]), (0.86, r["base"]), (1.0, r["highlight"])]
+        self.ramp = [(0.0, r["outline"]), (0.35, r["dark"]), (0.69, r["shadow"]), (0.86, r["base"]), (1.0, r["paper"])]
         self.cache = {}
 
     def grey(self, g):
@@ -61,7 +64,7 @@ class Recolour:
             h, l, _ = colorsys.rgb_to_hls(*(v / 255 for v in rgb))
             if 0.55 <= h <= 0.75:      # the blue selection family: #9999ff down to its light tints
                 t = max(0.0, min(1.0, (l - 0.8) / 0.14))
-                out = _lerp(self.r["select_bar"], _lerp(self.r["highlight"], self.r["select_bar"], 0.15), t)
+                out = _lerp(self.r["select_bar"], _lerp(self.r["paper"], self.r["select_bar"], 0.15), t)
             else:
                 out = rgb
         self.cache[key] = out

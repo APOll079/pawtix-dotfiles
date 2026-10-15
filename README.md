@@ -63,11 +63,10 @@ stored in this repo: `install.sh` downloads them from there into `~/.local/share
 
 ## App themes
 
-Vesktop, Spotify (Spicetify), VSCodium and Zen follow the active theme too. The theme manager writes
+Vesktop, VSCodium and Zen follow the active theme too. The theme manager writes
 a CSS / colour file for each app that is installed, and you switch each one on once:
 
 - **Vesktop**: Settings > Themes > enable "qs retro".
-- **Spotify**: `spicetify config current_theme QsRetro color_scheme Base && spicetify apply`.
 - **VSCodium**: restart it, then Ctrl+K Ctrl+T > "Retro (quickshell)".
 - **Zen**: add `@import "/home/<you>/.config/zen-qs/theme.css";` to your profile's
   `chrome/userChrome.css`, and set `toolkit.legacyUserProfileCustomizations.stylesheets` to true.

@@ -1,8 +1,0 @@
-/* Generated from the quickshell theme ({{theme}}). Edit quickshell/theme/templates/spicetify-user.css,
-   never this file. The colours come from color.ini through the --spice-* variables. */
-::-webkit-scrollbar-thumb {
-    background-color: var(--spice-button-disabled);
-}
-::-webkit-scrollbar-thumb:hover {
-    background-color: var(--spice-button);
-}

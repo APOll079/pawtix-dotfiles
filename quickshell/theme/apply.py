@@ -50,8 +50,6 @@ OUTPUTS = {
     # App themes (CSS / colour files only, never a profile folder). Each is a guess at what the app
     # reads until it was tried live; see CLAUDE.md "App themes".
     "vesktop.css": ("vesktop/themes/qs-retro.css", None, "vesktop"),
-    "spicetify-color.ini": ("spicetify/Themes/QsRetro/color.ini", None, "spicetify"),
-    "spicetify-user.css": ("spicetify/Themes/QsRetro/user.css", None, "spicetify"),
     "vscodium-package.json": ("~/.vscode-oss/extensions/qs.qs-retro-theme-1.0.0/package.json", None, "~/.vscode-oss/extensions"),
     "vscodium-theme.json": ("~/.vscode-oss/extensions/qs.qs-retro-theme-1.0.0/themes/qs-retro-color-theme.json", None, "~/.vscode-oss/extensions"),
     "zen.css": ("zen-qs/theme.css", None, "~/.zen"),
@@ -282,8 +280,8 @@ def gtk_theme(roles, no_reload):
         return
     try:
         changed = gtkgen.generate(roles, src, dst)
-    except (OSError, ValueError) as e:
-        print(f"  gtk theme failed: {e}", file=sys.stderr)
+    except Exception as e:  # a broken GTK step must never fail the whole theme switch
+        print(f"  gtk theme failed: {type(e).__name__}: {e}", file=sys.stderr)
         return
     print(f"  {'wrote' if changed else 'unchanged'}     {dst}" + (f" ({changed} files)" if changed else ""))
     # libadwaita / GTK 4 apps read ~/.config/gtk-4.0 itself: keep its links on the generated theme,
