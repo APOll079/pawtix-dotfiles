@@ -115,6 +115,17 @@ hl.window_rule({
     float = true
 })
 
+-- VLC re-creates its window when a looped video restarts and asks to be activated; with
+-- misc.focus_on_activate on (needed for Vesktop notification clicks) that focused it and
+-- pulled the cursor onto it. Ignore VLC's own activation requests.
+hl.window_rule({
+    name  = "vlc-no-focus-steal",
+    match = {
+        class = "^(vlc|VLC)$"
+    },
+    suppress_event = "activate activatefocus"
+})
+
 -- HyprEmoji (SUPER + period): float near the cursor. Rule taken from the package's own
 -- /usr/share/hypremoji/hypremoji.lua; without it the picker tiles and fills half the screen.
 hl.window_rule({

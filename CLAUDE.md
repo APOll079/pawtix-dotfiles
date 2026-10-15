@@ -56,6 +56,7 @@
 - Kitty color0-15 (fixed in `kitty/cherry_theme.conf`, not themed yet), the palettes of the non-cherry themes in `themes.json` (unless I ask), `hyprpaper.conf`, `hyfetch.json`.
 - Never add `closeCallback` to ThemeMenu. It has none, and adding it breaks Bar.qml.
 - Float rules for Nemo, portal, Loupe, VLC, 7zFM. Spotify and Vesktop go to `special:spotifyspace`.
+- VLC also has `vlc-no-focus-steal` (`suppress_event = "activate activatefocus"`): a looped video re-created its window and, with `misc.focus_on_activate` on, pulled the cursor onto it. Confirmed live (the jump stopped); why it only started recently is unknown. If the jump comes back, the next step is `no_initial_focus = true` for VLC (cost: a freshly launched VLC would not take focus by itself).
 
 ## Desktop setup
 - Workspaces 1-4 are pinned to DP-2 (loop in binds.lua). DP-1 has one static workspace, 11. No workspace 10.
