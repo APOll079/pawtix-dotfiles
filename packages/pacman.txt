@@ -70,6 +70,7 @@ krita
 pavucontrol
 helvum
 blueman
+flatseal                    # Flatpak permissions (EasyEffects, Sober)
 qbittorrent
 telegram-desktop
 7zip
