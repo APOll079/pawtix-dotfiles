@@ -20,6 +20,10 @@ PanelWindow {
 
     property string mode: "region"        // region | window | screen | all
     property bool capturing: false
+    // The dim and the toolbar only appear once the frozen frame is in: the capture is taken of the
+    // screen as it is, and an overlay already drawn by then (the dim covers everything until a
+    // selection exists) would be baked into the "frozen" frame and into every shot
+    readonly property bool chromeVisible: frozen.hasContent && !root.capturing
     property bool dragging: false
     property point anchorPos: Qt.point(0, 0)
     property rect sel: Qt.rect(0, 0, 0, 0)
@@ -58,7 +62,7 @@ PanelWindow {
     // Dim everything outside the highlighted area (four strips)
     Item {
         anchors.fill: parent
-        visible: !root.capturing
+        visible: root.chromeVisible
         readonly property rect r: root.focusRect
         readonly property color dimColor: Config.colors.outline
         Rectangle { x: 0; y: 0; width: parent.width; height: parent.r.y; color: parent.dimColor; opacity: MenuStyle.shotDimOpacity }
@@ -137,7 +141,7 @@ PanelWindow {
     // Toolbar: sits exactly over the bar's centre (where the lyrics are), so it covers little of the screen
     Rectangle {
         id: toolbar
-        visible: !root.capturing
+        visible: root.chromeVisible
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         width: toolRow.implicitWidth + 2 * MenuStyle.pad
