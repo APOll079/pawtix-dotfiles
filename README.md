@@ -1,4 +1,5 @@
 # pawtix dotfiles
+n![Side panel and bar](screenshots/panel.png)
 
 A retro, Win95 / classic-Mac flavoured Hyprland desktop for **Artix Linux (dinit)**.
 Bevels, solid title bars, dense rows, chunky icons: everything you see besides app windows is
@@ -57,7 +58,21 @@ Bundled here: Liberation Sans (with its licence) and Material Symbols (the icons
 The GTK theme **ClassicPlatinumStreamlined** and the icon theme **RetroismIcons** come from
 [linux-retroism](https://github.com/diinki/linux-retroism) by diinki (MIT licence). They are not
 stored in this repo: `install.sh` downloads them from there into `~/.local/share/themes/` and
-`~/.local/share/icons/`.
+`~/.local/share/icons/`. The GTK theme is then recoloured with the active palette into a copy called
+`QsRetro` (the original is never touched), so GTK apps follow the theme manager too.
+
+## App themes
+
+Vesktop, Spotify (Spicetify), VSCodium and Zen follow the active theme too. The theme manager writes
+a CSS / colour file for each app that is installed, and you switch each one on once:
+
+- **Vesktop**: Settings > Themes > enable "qs retro".
+- **Spotify**: `spicetify config current_theme QsRetro color_scheme Base && spicetify apply`.
+- **VSCodium**: restart it, then Ctrl+K Ctrl+T > "Retro (quickshell)".
+- **Zen**: add `@import "/home/<you>/.config/zen-qs/theme.css";` to your profile's
+  `chrome/userChrome.css`, and set `toolkit.legacyUserProfileCustomizations.stylesheets` to true.
+
+These are best guesses at what each app reads, so expect to fix a variable name or two.
 
 ## Also outside this repo
 

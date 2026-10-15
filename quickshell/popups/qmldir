@@ -29,3 +29,5 @@ SpotifyPanel 1.0 SpotifyPanel.qml
 SearchBox 1.0 SearchBox.qml
 TaskManager 1.0 TaskManager.qml
 CoverTile 1.0 CoverTile.qml
+WallpaperView 1.0 WallpaperView.qml
+WallpaperBrowser 1.0 WallpaperBrowser.qml

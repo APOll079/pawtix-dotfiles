@@ -68,6 +68,9 @@ Singleton {
     // Games filter chips: width, and how many days count as "Recent"
     readonly property int gamesChipWidth: 64
     readonly property int gamesRecentDays: 30
+    // Wallpaper browser: grid columns (16:9 thumbnails) and thumbnail decode width
+    readonly property int wallGridColumns: 4
+    readonly property int wallThumbDecodeWidth: 320
     readonly property int shotSettle: 250
     readonly property real shotDimOpacity: 0.45
     readonly property int shotMinSize: 4

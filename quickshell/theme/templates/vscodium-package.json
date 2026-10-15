@@ -1,0 +1,18 @@
+{
+    "name": "qs-retro-theme",
+    "displayName": "Retro (quickshell)",
+    "description": "Generated from the quickshell theme by apply.py. Edit quickshell/theme/templates/vscodium-theme.json.",
+    "version": "1.0.0",
+    "publisher": "qs",
+    "engines": { "vscode": "^1.60.0" },
+    "categories": ["Themes"],
+    "contributes": {
+        "themes": [
+            {
+                "label": "Retro (quickshell)",
+                "uiTheme": "vs",
+                "path": "./themes/qs-retro-color-theme.json"
+            }
+        ]
+    }
+}

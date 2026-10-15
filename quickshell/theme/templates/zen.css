@@ -1,0 +1,34 @@
+/* Generated from the quickshell theme ({{theme}}). Edit quickshell/theme/templates/zen.css, never this file.
+ *
+ * Import it from your Zen profile's chrome/userChrome.css (one line, once):
+ *     @import "<your home>/.config/zen-qs/theme.css";
+ * and set toolkit.legacyUserProfileCustomizations.stylesheets = true in about:config.
+ * Plain Firefox variables first; the --zen-* names are a guess until tried live. */
+:root {
+    --toolbar-bgcolor: {{base}} !important;
+    --toolbar-color: {{text}} !important;
+    --toolbar-field-background-color: {{highlight}} !important;
+    --toolbar-field-color: {{text}} !important;
+    --toolbar-field-focus-background-color: {{highlight}} !important;
+    --toolbar-field-border-color: {{outline}} !important;
+    --tab-selected-bgcolor: {{highlight}} !important;
+    --tab-selected-textcolor: {{text}} !important;
+    --lwt-accent-color: {{base}} !important;
+    --lwt-text-color: {{text}} !important;
+    --arrowpanel-background: {{base}} !important;
+    --arrowpanel-color: {{text}} !important;
+    --arrowpanel-border-color: {{outline}} !important;
+    --panel-separator-color: {{shadow}} !important;
+    --sidebar-background-color: {{base}} !important;
+    --sidebar-text-color: {{text}} !important;
+    --focus-outline-color: {{select_bar}} !important;
+    --button-primary-bgcolor: {{select_bar}} !important;
+    --button-primary-color: {{select_text}} !important;
+
+    --zen-colors-primary: {{base}} !important;
+    --zen-colors-secondary: {{shadow}} !important;
+    --zen-colors-tertiary: {{highlight}} !important;
+    --zen-colors-border: {{outline}} !important;
+    --zen-primary-color: {{select_bar}} !important;
+    --zen-border-radius: 0px !important;
+}

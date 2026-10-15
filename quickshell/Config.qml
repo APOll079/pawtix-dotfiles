@@ -23,7 +23,32 @@ readonly property var fallbackThemes: ({
 "defaultWallpaperPath": ""
 }
 })
-property var themes: fallbackThemes
+// themes.json (or the built-in cherry), plus "wallpaper" once a palette was made from a picture
+property var baseThemes: fallbackThemes
+property var wallTheme: null
+readonly property var themes: wallTheme ? Object.assign({}, baseThemes, { "wallpaper": wallTheme }) : baseThemes
+// The palette theme/wallcolors.py wrote for the wallpaper browser's "Set + colours" (state dir, not the repo)
+readonly property string wallPalette: Quickshell.statePath("wallpaper-theme.json")
+function reloadWallTheme() { wallFile.reload() }
+FileView {
+id: wallFile
+path: root.wallPalette
+printErrors: false
+watchChanges: true
+onFileChanged: reload()
+onLoaded: {
+try {
+const p = JSON.parse(text());
+// Same check as apply.py: every role the shell draws with must be a #rrggbb string
+for (const k of ["base", "shadow", "highlight", "accent", "text", "outline"])
+if (typeof p[k] !== "string" || !/^#[0-9a-fA-F]{6}$/.test(p[k]))
+throw new Error("missing or bad " + k);
+root.wallTheme = p;
+} catch (e) {
+console.warn("wallpaper-theme.json ignored: " + e);
+}
+}
+}
 FileView {
 id: themesFile
 path: Qt.resolvedUrl("./theme/themes.json")
@@ -31,7 +56,7 @@ watchChanges: true
 onFileChanged: reload()
 onLoaded: {
 try {
-root.themes = JSON.parse(text());
+root.baseThemes = JSON.parse(text());
 } catch (e) {
 console.warn("theme/themes.json is not valid JSON, keeping the previous palettes: " + e);
 }
@@ -45,8 +70,21 @@ property bool settingsLoaded: false
 Timer {
 id: applyTimer
 interval: 300
-onTriggered: Quickshell.execDetached(["python3", "-I", Quickshell.shellDir + "/theme/apply.py", root.settings.currentTheme])
+onTriggered: {
+const cmd = root.applyCommand();
+if (cmd)
+Quickshell.execDetached(cmd);
 }
+}
+// apply.py for the current theme; the wallpaper theme takes its palette file (null until it exists)
+function applyCommand() {
+const base = ["python3", "-I", Quickshell.shellDir + "/theme/apply.py", root.settings.currentTheme];
+if (root.settings.currentTheme !== "wallpaper")
+return base;
+return root.wallTheme ? base.concat(["--palette", root.wallPalette]) : null;
+}
+// A new wallpaper palette while "wallpaper" is the theme: render the apps again
+onWallThemeChanged: { if (root.settingsLoaded && !Quickshell.env("QS_NO_APPLY") && root.settings.currentTheme === "wallpaper") applyTimer.restart() }
 function settingsReady() {
 if (root.settingsLoaded)
 return;
@@ -74,6 +112,7 @@ CheatSheet,
 Services,
 Spotify,
 TaskManager,
+Wallpapers,
 None
 }
 property alias settings: settingsJsonAdapter.settings
@@ -137,6 +176,10 @@ property int screenOffMinutes: 15
 property JsonObject weather: JsonObject {
 property string location: ""
 property bool metric: true
+}
+// Wallpaper browser (Themes > Wallpapers...): the folder it lists (top level only; ~ allowed)
+property JsonObject wallpaper: JsonObject {
+property string folder: "~/Pictures/wallpapers"
 }
 // Session panel: countdown before reboot/shutdown, plus your own actions [{ "name", "icon", "cmd" }]
 property JsonObject session: JsonObject {

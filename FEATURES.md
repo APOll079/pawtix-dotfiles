@@ -20,27 +20,27 @@ Item numbers are the ids from the approval list. This file has two halves: **Pla
 - Spotify panel (Super+S): create the developer app, log in, then every control, Recent, library tabs, opening a playlist, Lyrics tab; the new animations (menus, hovers, Hyprland windows / workspaces)
 - Launcher Hide / Uninstall (Hidden chip), keybind cheat sheet (Super+F1), Services panel (does `dinitctl --user list` / `--system list` print the format the parser expects? does System need doas to list?), Phone tab in the side panel (needs the KDE Connect app on the phone, same Wi-Fi, firewall ports 1714-1764)
 - Bluetooth pairing / trust / forget
+- GTK theme: restart Quickshell once (it writes QsRetro), then `gsettings set org.gnome.desktop.interface gtk-theme QsRetro`: Nemo, a GTK 4 app, a theme switch re-colouring open windows (the Adwaita flip), the buttons / checkboxes / selections in every theme
+- App themes: each app's one-time setup (CLAUDE.md "App themes"), then a theme switch: do Vesktop's variables, Spotify's colours, VSCodium's extension folder and Zen's @import really take effect?
+- Wallpaper colours: "Set + colours" on a real wallpaper, the Themes menu card "wallpaper", plain Set while that theme is active, the palette surviving a restart
+- Wallpaper browser: Set on DP-1 / DP-2 / All, each fit mode, the choice coming back after a Quickshell restart and after a reboot (hyprpaper's error text and start-up timing are guesses)
 - Snipping overlay: region drag, Screen / All on DP-1, toast thumbnail and click; History multi-select, viewer, multi-copy paste, multi-delete
 - Games menu and the launcher's Games / Clipboard tabs: shortcut launch, Add game, hide / remove, filter chips, Ctrl+Tab; Super+Q closing menus; the grouped process monitor (bottom)
 - Screen-share picker (start a share from Discord, a browser or OBS; restart the portal first), screen-share icon, idle lock / DPMS timings, per-app volume grouping, Calendar clicks, tray tooltips, Spotify notification `appName` match (a guess), Workspaces.qml click dispatch and centred numbers
 
 ### Theming run (LAST, as its own run, after you approve)
-- 14. Wallpaper browser
-- 31. Wallpaper-based colours
-- 32. Themes for Zen, Discord, Spotify, VS Code, Neovim, Steam (CSS file only, never the profile folder)
-- 33. GTK/Qt themes generated from the palette (GTK is Adwaita Sans + ClassicPlatinumStreamlined today)
+- 33b. Qt theme: no Qt config exists yet (qt6ct would be a new package; ask first)
 
 Rules relaxed for the theming run only: CLAUDE.md says not to touch non-cherry themes in themes.json or kitty color0-15; the run may do both once you approve it.
 
 ### Theming run: what's left of the original design
-- Built: palettes in `quickshell/theme/themes.json`, live reading in Config.qml, templates + `apply.py` for kitty, Hyprland, hyprlock, fastfetch, btop, bottom, fish, hypremoji.
-- Still to do: GTK templates (`gtk-3.0`, `gtk-4.0`, `nwg-look`, `xsettingsd`), then wallpaper-generated themes (wallust or pywal16: hue and saturation only, lightness per role stays fixed so bevels keep their contrast).
+- Built: palettes in `quickshell/theme/themes.json`, live reading in Config.qml, templates + `apply.py` for kitty, Hyprland, hyprlock, fastfetch, btop, bottom, fish, hypremoji, the app themes and the GTK theme; wallpaper browser and palettes from a wallpaper.
+- Still to do: Qt only.
 - Rule relaxed for this run only: the theme manager may touch the non-cherry palettes in themes.json and kitty color0-15, once approved.
 
 ### Small open items (from the old AUDIT.md)
 - Spotify notification filter: `NotificationDaemon.qml` drops `appName` "spotify" (a guess). If Spotify track toasts still show, use the real app name.
 - Portal float rule (`windowrules.lua`, `windowrule-4`) matches `^(xdg-desktop-portal.*)$`: check that a Zen file picker floats.
-- GTK hinting on Wayland comes from gsettings, not `settings.ini`. For full hinting: `gsettings set org.gnome.desktop.interface font-hinting 'full'`.
 - `hypr/autostart.lua` starts pipewire and wireplumber with `dinitctl`, which probably duplicates the user dinit services. Harmless, not verified.
 - Old files left in the live `~/.config/quickshell` (not in the repo, unused): `popups/MenuFrame.qml`, `popups/NetworkMenu.qml`, `taskbar/TaskbarButton.qml`, `preview.qml`, `fonts/MaterialSymbolsSharp_Filled_36pt-Regular.ttf`. Your sync doesn't delete, so remove them by hand if wanted.
 
@@ -54,6 +54,10 @@ Rules relaxed for the theming run only: CLAUDE.md says not to touch non-cherry t
 - **Games** (34): cover grid with filter chips (All / Recent / Steam / Other / Hidden), as the standalone menu (Super+Shift+G) and as the launcher's Games tab; Steam, Steam shortcuts, own entries; `scripts/games.py` + `GamesState.qml` + `GamesView.qml`
 - **Screen share picker**: cherry dialog (Screens / Windows tabs, thumbnails, Remember my choice) replacing the portal's default picker; `sharepicker.qml` + `scripts/share-picker.sh` + `hypr/xdph.conf`. No Region sharing (by choice)
 - **Desktop**: idle dim / lock / screens off (22), OSDs (23), session panel (24), HyprEmoji, Super+Q closes an open menu before it closes a window
+- **GTK theme** (33): `theme/gtkgen.py` recolours the installed ClassicPlatinumStreamlined into `~/.local/share/themes/QsRetro` from the active palette (CSS + PNG assets), gtk settings files and `install.sh` (gsettings theme, icons, full font hinting) point at it
+- **App themes** (32): Vesktop, Spotify (Spicetify), VSCodium, Zen generated from the active palette (`apply.py` + templates; CSS / colour files only). Neovim (not installed) and Steam (needs Millennium) skipped
+- **Wallpaper colours** (31): `theme/wallcolors.py` (Pillow) makes a `wallpaper` palette from a picture (hue + colourfulness only, fixed lightness per role); browser button "Set + colours" / Shift+Enter; `apply.py wallpaper --palette FILE`
+- **Wallpaper browser** (14): Themes > Wallpapers..., grid of `~/Pictures/wallpapers` (settings.json "wallpaper.folder"), monitor + fit, set live through hyprpaper IPC, re-set at start from the state dir; hyprpaper.conf untouched
 - **Theme manager core** (30): `themes.json` + `apply.py` + templates drive kitty, Hyprland borders, hyprlock, fastfetch, btop, bottom (process monitor, grouped by program, Ctrl+Shift+Esc), fish and the emoji picker; `dusty` alongside cherry
 - Steam games open on workspace 2
 - **Spotify panel** (Super+S): mini player with shuffle / repeat / like / add to playlist / volume, Recent 8, full library, Lyrics tab; `scripts/spotify.py` + `SpotifyState.qml`

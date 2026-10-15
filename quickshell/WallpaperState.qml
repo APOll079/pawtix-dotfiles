@@ -1,0 +1,157 @@
+pragma Singleton
+import QtQuick
+import Quickshell
+import Quickshell.Io
+
+// Wallpapers for the wallpaper browser. The images are the files in settings.json "wallpaper.folder"
+// (default ~/Pictures/wallpapers, top level only). Picking one sets it live through hyprpaper's IPC
+// (`hyprctl hyprpaper wallpaper 'MON,PATH,FIT'`) and saves it to wallpaper.json in Quickshell's
+// state dir; at start the saved choice is set again (hyprpaper.conf is never touched, so the
+// conf's wallpaper shows until then). QS_WALLPAPER_HYPRCTL replaces hyprctl (tests: a fake).
+Singleton {
+    id: root
+
+    property var files: []                 // file names in the folder, sorted
+    property bool loaded: false
+    property bool folderMissing: false
+    property string status: ""             // last error from hyprpaper or the colour step, "" when fine
+
+    readonly property string folder: {
+        const f = (Config.settings.wallpaper && Config.settings.wallpaper.folder) || "~/Pictures/wallpapers";
+        return f.startsWith("~/") ? Quickshell.env("HOME") + f.slice(1) : f;
+    }
+    readonly property var monitors: adapter.monitors   // { "DP-2": { path, fit } }
+    readonly property string file: Quickshell.statePath("wallpaper.json")
+    readonly property string hyprctl: Quickshell.env("QS_WALLPAPER_HYPRCTL") || "hyprctl"
+    readonly property int maxTries: 10     // at start hyprpaper may not listen yet: retry once a second
+
+    property bool rerun: false
+    property bool switchAfter: false
+    property int tries: 0
+    property var pending: []               // [[monitor, path, fit], ...] being set
+
+    function refresh() {
+        if (lister.running)
+            root.rerun = true;
+        else
+            lister.running = true;
+    }
+    // settings.json loads after this: list the right folder once it is known, and after a change
+    onFolderChanged: root.refresh()
+
+    function pathOf(name) {
+        return root.folder + "/" + name;
+    }
+
+    // Monitors (output names) currently showing this file
+    function shownOn(path) {
+        return Object.keys(adapter.monitors).filter(m => adapter.monitors[m].path === path);
+    }
+
+    // Set `path` on each of `outputs` (names) with fit cover | contain | fill | tile, and remember it.
+    // colours = also make the "wallpaper" theme from it and switch to it (done anyway while that
+    // theme is the active one, so it keeps following the picture)
+    function setWallpaper(path, outputs, fit, colours) {
+        const next = Object.assign({}, adapter.monitors);
+        for (const m of outputs)
+            next[m] = { path: path, fit: fit };
+        adapter.monitors = next;
+        root.send(outputs.map(m => [m, path, fit]), 1);
+        if (colours || Config.settings.currentTheme === "wallpaper")
+            root.makeColours(path, colours === true);
+    }
+
+    function makeColours(path, switchTheme) {
+        root.switchAfter = switchTheme;
+        colourer.command = ["python3", "-I", Quickshell.shellDir + "/theme/wallcolors.py", path, "--out", Config.wallPalette];
+        colourer.running = false;
+        colourer.running = true;
+    }
+
+    function restore() {
+        const jobs = Object.keys(adapter.monitors).map(m => [m, adapter.monitors[m].path, adapter.monitors[m].fit || "cover"]);
+        if (jobs.length > 0)
+            root.send(jobs, root.maxTries);
+    }
+
+    function send(jobs, tries) {
+        root.pending = jobs;
+        root.tries = tries;
+        root.status = "";
+        setter.running = false;
+        setter.running = true;
+    }
+
+    // Lists the folder: images only, top level, sorted by name
+    Process {
+        id: lister
+        command: ["find", "-L", root.folder, "-maxdepth", "1", "-type", "f",
+            "(", "-iname", "*.png", "-o", "-iname", "*.jpg", "-o", "-iname", "*.jpeg", "-o", "-iname", "*.webp", ")",
+            "-printf", "%f\\n"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.files = text.split("\n").filter(n => n !== "").sort((a, b) => a.localeCompare(b));
+                root.loaded = true;
+            }
+        }
+        onExited: code => {
+            root.folderMissing = code !== 0 && root.files.length === 0;
+            if (root.rerun) {
+                root.rerun = false;
+                lister.running = true;
+            }
+        }
+    }
+
+    // One hyprctl call per monitor; the first failure stops the run and (if tries are left) retries
+    Process {
+        id: setter
+        command: ["sh", "-c", "hc=$1; shift; while [ $# -ge 3 ]; do out=$(\"$hc\" hyprpaper wallpaper \"$1,$2,$3\" 2>&1) || { echo \"$out\"; exit 1; }; case $out in *rror*|*ouldn*|*ailed*) echo \"$out\"; exit 1;; esac; shift 3; done",
+            "sh", root.hyprctl].concat([].concat(...root.pending))
+        stdout: StdioCollector { id: setterOut }
+        onExited: code => {
+            if (code === 0)
+                return;
+            if (root.tries > 1) {
+                root.tries--;
+                retry.restart();
+            } else {
+                root.status = "hyprpaper: " + (setterOut.text.trim() || "not running");
+            }
+        }
+    }
+    // Palette from the picture (theme/wallcolors.py); then Config reads it and, if asked, the theme switches
+    Process {
+        id: colourer
+        stderr: StdioCollector { id: colourerErr }
+        onExited: code => {
+            if (code !== 0) {
+                root.status = "colours: " + (colourerErr.text.trim().split("\n").pop() || "failed");
+                return;
+            }
+            Config.reloadWallTheme();
+            if (root.switchAfter)
+                Config.settings.currentTheme = "wallpaper";
+        }
+    }
+    Timer {
+        id: retry
+        interval: 1000
+        onTriggered: setter.running = true
+    }
+
+    FileView {
+        path: root.file
+        printErrors: false
+        onAdapterUpdated: writeAdapter()
+        onLoaded: root.restore()
+        onLoadFailed: error => {
+            if (error == FileViewError.FileNotFound)
+                writeAdapter();
+        }
+        JsonAdapter {
+            id: adapter
+            property var monitors: ({})
+        }
+    }
+}

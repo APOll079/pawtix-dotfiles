@@ -7,7 +7,7 @@
 # Idempotent: run it as often as you like. It never deletes anything: files it would overwrite in
 # ~/.config are copied to ~/config-backup-<date>/ first, system files get a .bak-<date> copy.
 # Uses doas (not sudo) and yay. Asks yes/no before the optional steps (Flatpak apps, downloading
-# the GTK + icon themes, linking the GTK theme, autologin + lock at boot); the rest runs without asking.
+# the GTK + icon themes, switching GTK to QsRetro, autologin + lock at boot); the rest runs without asking.
 #
 # Package lists (plain text, edit by hand): packages/pacman.txt, aur.txt, flatpak.txt,
 # services-dinit.txt. A "#" starts a comment; comment a line out to skip that package.
@@ -343,21 +343,48 @@ retroism_themes() {
     run rm -rf "$tmp"
 }
 
-gtk_theme() {
-    say "GTK theme (ClassicPlatinumStreamlined) and icons (RetroismIcons)"
-    ask "Link the GTK 4 theme files into ~/.config/gtk-4.0?" n || { note "skipped"; return; }
-    local theme="$HOME/.local/share/themes/ClassicPlatinumStreamlined"
-    if [[ ! -d "$theme" ]]; then
-        warn "theme not found at $theme. Install ClassicPlatinumStreamlined there first, then run this again."
+# gsettings set, only when the value differs (needs a running session; --dry-run only prints)
+gset() {
+    local schema="$1" key="$2" value="$3"
+    have gsettings || { warn "gsettings not found: skipped $key"; return; }
+    if (( ! DRY )) && [[ "$(gsettings get "$schema" "$key" 2>/dev/null)" == "'$value'" ]]; then
+        note "$key is already $value"
         return
     fi
+    run gsettings set "$schema" "$key" "$value"
+}
+
+# Colour files for every themed app, from the active palette. This also writes the recoloured GTK
+# theme QsRetro (theme/gtkgen.py, from the ClassicPlatinumStreamlined installed above); Quickshell
+# does the same at start and on every theme change.
+generate_theme() {
+    say "Theme files (colours for kitty, GTK, apps ...)"
+    have python3 || { warn "python3 not found: skipped"; return; }
+    local t
+    t="$(theme_name)"
+    [[ "$t" == wallpaper ]] && t=cherry      # the wallpaper palette lives in Quickshell's state dir
+    run python3 -I "$CONFIG/quickshell/theme/apply.py" "$t" --no-reload
+}
+
+gtk_theme() {
+    say "GTK theme (QsRetro, from ClassicPlatinumStreamlined) and icons (RetroismIcons)"
+    if (( ! DRY )) && [[ ! -d "$HOME/.local/share/themes/QsRetro" ]]; then
+        warn "QsRetro was not generated: is ClassicPlatinumStreamlined in ~/.local/share/themes? (run this again after installing it)"
+        return
+    fi
+    ask "Make QsRetro the GTK theme (gsettings), with full font hinting?" y || { note "skipped"; return; }
+    gset org.gnome.desktop.interface gtk-theme QsRetro
+    gset org.gnome.desktop.interface icon-theme RetroismIcons
+    # GTK on Wayland takes hinting from gsettings, not settings.ini
+    gset org.gnome.desktop.interface font-hinting full
+    # The GTK 4 (libadwaita) links are kept by apply.py; make them here too if it could not
     local f
     for f in gtk.css assets; do
         if [[ -e "$CONFIG/gtk-4.0/$f" || -L "$CONFIG/gtk-4.0/$f" ]]; then
             note "gtk-4.0/$f exists already, left as is"
         else
             run mkdir -p "$CONFIG/gtk-4.0"
-            run ln -s "$theme/gtk-4.0/$f" "$CONFIG/gtk-4.0/$f"
+            run ln -s "$HOME/.local/share/themes/QsRetro/gtk-4.0/$f" "$CONFIG/gtk-4.0/$f"
         fi
     done
     [[ -d "$HOME/.local/share/icons/RetroismIcons" || -d /usr/share/icons/RetroismIcons ]] \
@@ -438,6 +465,7 @@ main() {
     notification_overrides
     check_locale
     retroism_themes
+    generate_theme
     gtk_theme
     autologin
     summary

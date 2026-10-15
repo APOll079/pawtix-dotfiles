@@ -31,6 +31,7 @@ xdg-utils                   # xdg-open
 curl                        # lyrics (LRCLIB)
 git                         # installer: linux-retroism themes, yay bootstrap
 python                      # quickshell/scripts/*.py, theme/apply.py
+python-pillow               # theme/wallcolors.py (wallpaper colours), theme/gtkgen.py (GTK recolour)
 opendoas                    # doas (Services panel, installer)
 flatpak
 

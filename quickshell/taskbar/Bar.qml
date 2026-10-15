@@ -122,6 +122,7 @@ Popups.ThemeMenu {
 id: themeMenu
 bar: taskbar
 menuWidth: themeMenuButton.x
+openWallpapers: function() { taskbar.toggleMenu(wallpaperBrowser, Config.SystemPopup.Wallpapers, null, "keep") }
 }
 // ThemeMenu has no closeCallback; when it closes itself (picking a theme), reset the shared state.
 Connections {
@@ -155,9 +156,10 @@ Popups.CheatSheet { screen: root.modelData; bar: taskbar; id: cheatSheet; closeC
 Popups.ServicesPanel { screen: root.modelData; bar: taskbar; id: servicesPanel; closeCallback: taskbar.closeAllPopups; screenHeight: modelData.height }
 Popups.SpotifyPanel { id: spotifyPanel; screen: root.modelData; closeCallback: taskbar.closeAllPopups; screenHeight: modelData.height }
 Popups.SidePanel { screen: root.modelData; bar: taskbar; id: sidePanel; closeCallback: taskbar.closeAllPopups }
+Popups.WallpaperBrowser { screen: root.modelData; bar: taskbar; id: wallpaperBrowser; closeCallback: taskbar.closeAllPopups; screenHeight: modelData.height }
 
 // Every menu this bar owns; each has closeMenu()
-readonly property var menus: [startMenu, themeMenu, appLauncher, bluetoothMenu, sysMonMenu, sessionPanel, screenshotPanel, gamesMenu, cheatSheet, servicesPanel, spotifyPanel, taskManager, sidePanel]
+readonly property var menus: [startMenu, themeMenu, appLauncher, bluetoothMenu, sysMonMenu, sessionPanel, screenshotPanel, gamesMenu, cheatSheet, servicesPanel, spotifyPanel, taskManager, sidePanel, wallpaperBrowser]
 
 function closeAllPopups() {
 for (var m of taskbar.menus)

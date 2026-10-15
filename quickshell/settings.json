@@ -39,6 +39,9 @@
             "ram": "32GB 6200MHz"
         },
         "systemProfileImageSource": "~/Pictures/profile.PNG",
+        "wallpaper": {
+            "folder": "~/Pictures/wallpapers"
+        },
         "weather": {
             "location": "",
             "metric": true
