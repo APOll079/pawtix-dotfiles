@@ -242,16 +242,18 @@ deploy_file() {
 
 deploy() {
     say "Deploy configs to $CONFIG (changed files are backed up to $BACKUP)"
-    local changed=0 d f rel
+    local changed=0 d f rel filled
     for d in "${DEPLOY_DIRS[@]}"; do
         [[ -d "$REPO/$d" ]] || continue
         while IFS= read -r -d '' f; do
             rel="${f#"$REPO"/}"
-            # xdph.conf needs an absolute path to the share picker: the repo has @HOME@; compare
-            # and copy the filled-in version, so an unchanged file stays unchanged
-            if [[ "$rel" == hypr/xdph.conf ]]; then
-                sed "s#@HOME@#$HOME#g" "$f" > "$TMPDIR_RUN/xdph.conf"
-                f="$TMPDIR_RUN/xdph.conf"
+            # Files that need an absolute path (xdph.conf's picker, hyprlock.conf's images) have
+            # @HOME@ in the repo; compare and copy the filled-in version, so an unchanged file
+            # stays unchanged
+            if grep -qsI '@HOME@' "$f"; then
+                filled="$(mktemp -p "$TMPDIR_RUN")"
+                sed "s#@HOME@#$HOME#g" "$f" > "$filled"
+                f="$filled"
             fi
             deploy_file "$f" "$CONFIG/$rel" "$rel" && { changed=$((changed + 1)); note "updated $rel"; }
         done < <(find "$REPO/$d" -type f -not -path '*/__pycache__/*' -print0)
