@@ -6,8 +6,8 @@
 #
 # Idempotent: run it as often as you like. It never deletes anything: files it would overwrite in
 # ~/.config are copied to ~/config-backup-<date>/ first, system files get a .bak-<date> copy.
-# Uses doas (not sudo) and yay. Asks yes/no before the risky steps (Flatpak apps, GTK theme,
-# autologin + lock at boot); everything else runs without asking.
+# Uses doas (not sudo) and yay. Asks yes/no before the optional steps (Flatpak apps, downloading
+# the GTK + icon themes, linking the GTK theme, autologin + lock at boot); the rest runs without asking.
 #
 # Package lists (plain text, edit by hand): packages/pacman.txt, aur.txt, flatpak.txt,
 # services-dinit.txt. A "#" starts a comment; comment a line out to skip that package.
@@ -21,6 +21,10 @@ BACKUP="$HOME/config-backup-$STAMP"
 DRY=0
 TMPDIR_RUN="$(mktemp -d)"          # scratch for filled-in templates; removed on exit (our own temp only)
 trap 'rm -rf "$TMPDIR_RUN"' EXIT
+
+# linux-retroism commit the GTK + icon themes are installed from (full SHA). To update: check what
+# changed upstream, then paste the new SHA from `git ls-remote https://github.com/diinki/linux-retroism.git main`
+RETROISM_REV=255eb6a7b5a0d26413eea8dc5f47e8d67bb4b1ff
 
 # Folders of this repo that go to ~/.config/<name> (plus hyfetch.json)
 DEPLOY_DIRS=(hypr quickshell kitty fish btop gtk-3.0 gtk-4.0 nwg-look xsettingsd spotifyd spicetify dinit.d)
@@ -303,6 +307,42 @@ check_locale() {
     fi
 }
 
+# ClassicPlatinumStreamlined + RetroismIcons from linux-retroism by diinki (MIT); not stored in this repo
+RETROISM_URL=https://github.com/diinki/linux-retroism.git
+retroism_themes() {
+    say "GTK + icon themes from linux-retroism (diinki, MIT)"
+    ask "Download ClassicPlatinumStreamlined and RetroismIcons from linux-retroism?" y || { note "skipped"; return; }
+    have git || { warn "git not found: skipped"; return; }
+    local tmp="$TMPDIR_RUN/linux-retroism" pair src dest
+    # shallow fetch of exactly RETROISM_REV (clone --depth 1 can only take a branch)
+    { run git init --quiet "$tmp" \
+        && run git -C "$tmp" fetch --quiet --depth 1 "$RETROISM_URL" "$RETROISM_REV" \
+        && run git -C "$tmp" checkout --quiet FETCH_HEAD; } \
+        || { warn "download of linux-retroism $RETROISM_REV failed: skipped"; run rm -rf "$tmp"; return; }
+    for pair in "gtk_theme/ClassicPlatinumStreamlined:$HOME/.local/share/themes" \
+                "icon_theme/RetroismIcons:$HOME/.local/share/icons"; do
+        src="$tmp/${pair%%:*}"; dest="${pair#*:}/$(basename "$src")"
+        if (( ! DRY )) && [[ ! -d "$src" ]]; then
+            warn "${pair%%:*} not in the download: skipped"
+            continue
+        fi
+        # links compared as links: the icon theme has links whose targets don't exist
+        if [[ -d "$dest" ]] && diff -rq --no-dereference "$src" "$dest" >/dev/null 2>&1; then
+            note "$(basename "$src") already up to date"
+            continue
+        fi
+        if [[ -e "$dest" ]]; then
+            run mkdir -p "$BACKUP"
+            run mv "$dest" "$BACKUP/"
+            note "old $(basename "$src") moved to $BACKUP"
+        fi
+        run mkdir -p "${pair#*:}"
+        run cp -a "$src" "$dest"
+        note "installed $dest"
+    done
+    run rm -rf "$tmp"
+}
+
 gtk_theme() {
     say "GTK theme (ClassicPlatinumStreamlined) and icons (RetroismIcons)"
     ask "Link the GTK 4 theme files into ~/.config/gtk-4.0?" n || { note "skipped"; return; }
@@ -397,6 +437,7 @@ main() {
     enable_services
     notification_overrides
     check_locale
+    retroism_themes
     gtk_theme
     autologin
     summary

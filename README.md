@@ -30,8 +30,9 @@ bash install.sh
 4. stops mako and dunst from grabbing notifications (Quickshell owns them);
 5. checks the locale is UTF-8.
 
-It asks first before installing Flatpak apps, linking the GTK theme, and setting up autologin with
-greetd plus locking at login (default **no**: test `hyprlock` from a second TTY first).
+It asks first before installing Flatpak apps, downloading the GTK and icon themes (default **yes**),
+linking the GTK theme, and setting up autologin with greetd plus locking at login (default **no**:
+test `hyprlock` from a second TTY first).
 
 The lists in `packages/` are plain text: comment a line out with `#` to skip it. Each file has a
 separate "apps I use" section you can trim.
@@ -53,11 +54,10 @@ Bundled here: Liberation Sans (with its licence) and Material Symbols (the icons
 
 ## Themes and icons
 
-The look is inspired by [linux-retroism](https://github.com/diinki/linux-retroism) by diinki.
-
-The GTK theme **ClassicPlatinumStreamlined** and the icon theme **RetroismIcons** are not in this
-repo. Install them yourself into `~/.local/share/themes/` and `~/.local/share/icons/`.
-The installer only links the GTK 4 files.
+The GTK theme **ClassicPlatinumStreamlined** and the icon theme **RetroismIcons** come from
+[linux-retroism](https://github.com/diinki/linux-retroism) by diinki (MIT licence). They are not
+stored in this repo: `install.sh` downloads them from there into `~/.local/share/themes/` and
+`~/.local/share/icons/`.
 
 ## Also outside this repo
 

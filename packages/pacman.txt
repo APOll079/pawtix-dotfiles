@@ -30,6 +30,7 @@ playerctl                   # XF86AudioPlay bind
 libnotify                   # notify-send (game-mode toggle)
 xdg-utils                   # xdg-open
 curl                        # lyrics (LRCLIB)
+git                         # installer: linux-retroism themes, yay bootstrap
 python                      # quickshell/scripts/*.py, theme/apply.py
 opendoas                    # doas (Services panel, installer)
 flatpak
