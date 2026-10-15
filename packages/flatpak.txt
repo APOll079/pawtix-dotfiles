@@ -1,0 +1,10 @@
+# Flatpak apps (installed from flathub with: flatpak install --user). "#" comments.
+
+# --- rice ---
+com.github.wwmm.easyeffects # autostart.lua starts it; EasyEffects pins the DAC output
+
+# --- apps I use (trim freely) ---
+com.orcaslicer.OrcaSlicer
+net.codelogistics.clicker
+org.raspberrypi.rpi-imager
+org.vinegarhq.Sober

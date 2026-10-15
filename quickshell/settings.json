@@ -1,0 +1,47 @@
+{
+    "settings": {
+        "bar": {
+            "fontSize": 12,
+            "monochromeTrayIcons": true,
+            "trayIconSize": 20
+        },
+        "currentTheme": "dusty",
+        "execCommands": {
+            "files": "nemo",
+            "terminal": "kitty"
+        },
+        "idle": {
+            "dimMinutes": 5,
+            "enabled": true,
+            "lockMinutes": 10,
+            "screenOffMinutes": 15
+        },
+        "militaryTimeClockFormat": true,
+        "notifications": {
+            "dnd": false,
+            "maxVisible": 4,
+            "monitor": "",
+            "position": "top-right"
+        },
+        "osd": {
+            "bluetooth": true,
+            "volume": true
+        },
+        "session": {
+            "countdownSeconds": 60,
+            "customActions": []
+        },
+        "systemDetails": {
+            "cpu": "Ryzen 7 7800X3D",
+            "gpu": "RX 9070 XT",
+            "osName": "Artix",
+            "osVersion": "Hyprland",
+            "ram": "32GB 6200MHz"
+        },
+        "systemProfileImageSource": "~/Pictures/profile.PNG",
+        "weather": {
+            "location": "",
+            "metric": true
+        }
+    }
+}

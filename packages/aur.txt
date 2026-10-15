@@ -1,0 +1,24 @@
+# AUR packages. install.sh tries the official repos first (pacman) and only builds from the AUR
+# (yay -S --needed) what no repo has. "#" comments, "# ?" = unsure.
+
+# --- rice ---
+hypremoji                   # emoji picker (Super+.)
+posy-cursors                # cursor theme "posy-black" (xsettingsd.conf)
+spotify                     # Spotify app (Super+C scratchpad)
+spicetify-cli               # Spotify theme + the qs-folders extension
+vesktop                     # Discord (Super+C scratchpad)
+
+# --- apps I use (trim freely) ---
+zen-browser-bin             # in some repos (CachyOS), else the AUR
+localsend-bin
+obsidian-bin
+mp3tag
+puddletag
+ripperx
+ocenaudio-bin
+p7zip-gui                   # 7zFM (has a float rule)
+theclicker
+xclicker
+antigravity
+docker-desktop
+microsoft-edge-canary-bin

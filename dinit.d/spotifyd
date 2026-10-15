@@ -1,0 +1,8 @@
+# dinit user service for spotifyd (~/.config/dinit.d/spotifyd).
+# Enable once: dinitctl --user enable spotifyd   (starts it now and at every login)
+type = process
+command = /usr/bin/spotifyd --no-daemon
+restart = true
+# Needs the session bus (media controls) and pipewire-pulse (audio)
+waits-for = dbus
+waits-for = pipewire-pulse

@@ -1,0 +1,19 @@
+# dinit services (Artix). Format: <scope> <service> <package that ships it>
+#   system = /etc/dinit.d, enabled with doas dinitctl enable
+#   user   = the per-user dinit (turnstile), enabled with dinitctl --user enable
+# install.sh installs the packages (pacman, --needed) and enables the services.
+# "#" comments, "# ?" = unsure.
+
+system dbus           dbus-dinit
+system elogind        elogind-dinit
+system turnstiled     turnstile-dinit     # starts the per-user dinit (pipewire etc.)
+system NetworkManager networkmanager-dinit
+system bluetoothd     bluez-dinit
+system greetd         greetd-dinit        # login (see the autologin step)
+system cpupower       cpupower-dinit      # ? not needed by the rice
+
+user dbus             dbus-dinit-user
+user pipewire         pipewire-dinit
+user pipewire-pulse   pipewire-pulse-dinit
+user wireplumber      wireplumber-dinit
+user spotifyd         -                   # service file comes from this repo (dinit.d/spotifyd)

@@ -1,0 +1,92 @@
+# Repo packages for the rice. One per line; "#" starts a comment, so comment a line out to skip it.
+# install.sh installs every uncommented line with: doas pacman -S --needed
+# "# ?" = not sure it's needed, check before trusting it.
+
+# --- desktop core ---
+hyprland
+hyprlock
+hyprpaper
+hyprpicker                  # Super+Shift+C colour picker
+xdg-desktop-portal-hyprland # screen sharing (custom picker in hypr/xdph.conf)
+xdg-desktop-portal-gtk      # file pickers
+quickshell                  # bar, menus, launcher, notifications, everything
+qt6-wayland                 # ? quickshell may pull it in already
+polkit-gnome                # autostart.lua starts its agent
+greetd                      # login: starts Hyprland on tty1 (see install.sh autologin step)
+
+# --- tools the configs call ---
+kitty
+fish
+nemo                        # file manager (Super+E, settings.json execCommands.files)
+bottom                      # btm, process monitor
+btop                        # installed, not bound
+fastfetch
+hyfetch                     # kitty starts it
+grim                        # screenshots
+wl-clipboard                # wl-copy / wl-paste
+cliphist                    # clipboard history (Super+V)
+jq                          # binds.lua (focused monitor lookups)
+playerctl                   # XF86AudioPlay bind
+libnotify                   # notify-send (game-mode toggle)
+xdg-utils                   # xdg-open
+curl                        # lyrics (LRCLIB)
+python                      # quickshell/scripts/*.py, theme/apply.py
+opendoas                    # doas (Services panel, installer)
+flatpak
+
+# --- audio / bluetooth / network ---
+pipewire
+pipewire-pulse
+pipewire-alsa
+wireplumber
+bluez
+bluez-utils
+networkmanager              # nmcli: the ETH indicator
+
+# --- phone / spotify ---
+kdeconnect                  # Phone tab
+spotifyd                    # Spotify panel without the app
+
+# --- fonts (the bar bundles its own; Monaco + Charcoal: see README) ---
+noto-fonts
+noto-fonts-emoji            # emoji picker / notifications
+ttf-liberation              # ? bundled in quickshell/fonts already
+
+# --- apps I use (trim freely) ---
+steam                       # Games menu reads the Steam library
+wine                        # own entries in the Games menu
+winetricks
+protontricks
+vscodium
+obs-studio
+mpv
+vlc
+vlc-plugin-ffmpeg
+loupe
+gthumb
+gwenview
+shotwell
+gimp
+krita
+kdenlive
+pavucontrol
+helvum
+blueman
+qbittorrent
+telegram-desktop
+7zip
+unzip
+yt-dlp
+beets
+picard
+gnome-disk-utility
+gnome-text-editor
+nwg-look                    # GTK settings tool (rewrites gtk-3.0/settings.ini)
+solaar
+docker
+waydroid
+sqlitebrowser
+evtest
+wev
+ydotool
+wtype
