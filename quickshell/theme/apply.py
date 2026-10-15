@@ -50,7 +50,6 @@ OUTPUTS = {
     "bottom.toml": ("bottom/bottom.toml", None),
     # App themes (CSS / colour files only, never a profile folder). Each is a guess at what the app
     # reads until it was tried live; see CLAUDE.md "App themes".
-    "vesktop.css": ("vesktop/themes/qs-retro.css", None, "vesktop"),
     "vscodium-package.json": ("~/.vscode-oss/extensions/qs.qs-retro-theme-1.0.0/package.json", None, "~/.vscode-oss/extensions"),
     "vscodium-theme.json": ("~/.vscode-oss/extensions/qs.qs-retro-theme-1.0.0/themes/qs-retro-color-theme.json", None, "~/.vscode-oss/extensions"),
     "zen.css": ("zen-qs/theme.css", None, "~/.zen"),

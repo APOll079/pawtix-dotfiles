@@ -6,10 +6,7 @@ Item numbers are the ids from the approval list. This file has two halves: **Pla
 ## Planned
 
 ### Next up
-- fstab fix (waiting for your config; outside the repo, commands only)
-- 15. Drag-to-reorder pinned apps (Move up / Move down exists)
 - Bluetooth PIN agent: only devices that ask for a PIN need it (blueman's agent works until then)
-- 29. hyprlock at boot: autologin on tty1 plus `hl.exec_cmd("hyprlock")` in autostart.lua. The autologin part is a dinit/agetty change outside qs-test (give the commands, don't run them). Also finish and test the hyprlock cherry redesign
 
 ### Needs a live test (built, not yet confirmed on the desktop)
 - Spotify folders: install the Spicetify extension, open the panel and the Spotify app; folders appear in Lists within a minute
@@ -20,9 +17,12 @@ Item numbers are the ids from the approval list. This file has two halves: **Pla
 - Spotify panel (Super+S): create the developer app, log in, then every control, Recent, library tabs, opening a playlist, Lyrics tab; the new animations (menus, hovers, Hyprland windows / workspaces)
 - Launcher Hide / Uninstall (Hidden chip), keybind cheat sheet (Super+F1), Services panel (does `dinitctl --user list` / `--system list` print the format the parser expects? does System need doas to list?), Phone tab in the side panel (needs the KDE Connect app on the phone, same Wi-Fi, firewall ports 1714-1764)
 - Bluetooth pairing / trust / forget
+- NFS drives: a reboot or login should show both drives mounted by themselves (confirmed: `mount /mnt/disk1` as a user works and the service started cleanly). Unverified: the timing against NetworkManager at boot, and `bg` with the NAS off
+- Folder icons: `gsettings set org.gnome.desktop.interface icon-theme QsRetroIcons`, then Nemo's folders should follow a theme switch (the icon-theme flip); quickshell's own bar / tray icons stay on RetroismIcons
 - GTK theme: restart Quickshell once (it writes QsRetro), then `gsettings set org.gnome.desktop.interface gtk-theme QsRetro`: Nemo, a GTK 4 app, a theme switch re-colouring open windows (the Adwaita flip), the buttons / checkboxes / selections in every theme
-- App themes: each app's one-time setup (CLAUDE.md "App themes"), then a theme switch: do Vesktop's variables, VSCodium's extension folder and Zen's @import really take effect?
+- App themes: each app's one-time setup (CLAUDE.md "App themes"), then a theme switch: does Zen's @import really take effect? (VSCodium works; it needs Reload Window after a theme switch)
 - Wallpaper colours: "Set + colours" on a real wallpaper, the Themes menu card "wallpaper", plain Set while that theme is active, the palette surviving a restart
+- Lock screen wallpaper: after Set, `hyprlock` (from a second TTY) shows the same picture per monitor; the `$var` in `path` and the `##` escape are unverified in hyprlock
 - Wallpaper browser: Set on DP-1 / DP-2 / All, each fit mode, the choice coming back after a Quickshell restart and after a reboot (hyprpaper's error text and start-up timing are guesses)
 - Snipping overlay: region drag, Screen / All on DP-1, toast thumbnail and click; History multi-select, viewer, multi-copy paste, multi-delete
 - Games menu and the launcher's Games / Clipboard tabs: shortcut launch, Add game, hide / remove, filter chips, Ctrl+Tab; Super+Q closing menus; the grouped process monitor (bottom)
@@ -54,8 +54,11 @@ Rules relaxed for the theming run only: CLAUDE.md says not to touch non-cherry t
 - **Games** (34): cover grid with filter chips (All / Recent / Steam / Other / Hidden), as the standalone menu (Super+Shift+G) and as the launcher's Games tab; Steam, Steam shortcuts, own entries; `scripts/games.py` + `GamesState.qml` + `GamesView.qml`
 - **Screen share picker**: cherry dialog (Screens / Windows tabs, thumbnails, Remember my choice) replacing the portal's default picker; `sharepicker.qml` + `scripts/share-picker.sh` + `hypr/xdph.conf`. No Region sharing (by choice)
 - **Desktop**: idle dim / lock / screens off (22), OSDs (23), session panel (24), HyprEmoji, Super+Q closes an open menu before it closes a window
+- **NFS drives at login**: user service `dinit.d/nfs-mounts` mounts `/mnt/disk1` and `/mnt/disk2` after `nm-online`; needs `noauto,user,exec` on the two fstab lines (outside the repo: the commands were given, not run). `nfs-utils` is in pacman.txt
+- **hyprlock at boot** (29): greetd autologin plus the lock marker (`~/.config/hypr/lock-at-login`, read in `autostart.lua`), both set up by `install.sh` (asks, default no). The lock screen works (confirmed); that it comes up at boot is assumed, not watched
+- **Folder icons**: `theme/icongen.py` hue-shifts the blue of RetroismIcons to the accent into `~/.local/share/icons/QsRetroIcons` (Inherits the original; greys, reds, greens untouched); GTK settings, xsettingsd and `install.sh` use it
 - **GTK theme** (33): `theme/gtkgen.py` recolours the installed ClassicPlatinumStreamlined into `~/.local/share/themes/QsRetro` from the active palette (CSS + PNG assets), gtk settings files and `install.sh` (gsettings theme, icons, full font hinting) point at it
-- **App themes** (32): Vesktop, VSCodium, Zen generated from the active palette (`apply.py` + templates; CSS / colour files only). Neovim (not installed), Steam (needs Millennium) and Spotify (tried, looked awful, dropped) skipped
+- **App themes** (32): VSCodium, Zen generated from the active palette (`apply.py` + templates; CSS / colour files only). Neovim (not installed), Steam (needs Millennium), Spotify and Vesktop (both tried, looked bad, dropped) skipped
 - **Wallpaper colours** (31): `theme/wallcolors.py` (Pillow) makes a `wallpaper` palette from a picture (hue + colourfulness only, fixed lightness per role); browser button "Set + colours" / Shift+Enter; `apply.py wallpaper --palette FILE`
 - **Wallpaper browser** (14): Themes > Wallpapers..., grid of `~/Pictures/wallpapers` (settings.json "wallpaper.folder"), monitor + fit, set live through hyprpaper IPC, re-set at start from the state dir; hyprpaper.conf untouched
 - **Theme manager core** (30): `themes.json` + `apply.py` + templates drive kitty, Hyprland borders, hyprlock, fastfetch, btop, bottom (process monitor, grouped by program, Ctrl+Shift+Esc), fish and the emoji picker; `dusty` alongside cherry
@@ -73,6 +76,6 @@ Rules relaxed for the theming run only: CLAUDE.md says not to touch non-cherry t
 - Sunken wells around the bar groups, title-bar close boxes
 
 ## Not wanted
-Region sharing in the screen-share picker (monitor or program only), Heroic / Lutris / Bottles / Itch in the Games menu (Steam plus plain wine only), dock, desktop widgets, hot corners, screen-time tracker, dmenu mode / plugin providers, translator, video wallpaper, configurable bar, power profile, dark/light toggle. Nightlight: not now.
+Drag-to-reorder pinned apps (Move up / Move down is enough), region sharing in the screen-share picker (monitor or program only), Heroic / Lutris / Bottles / Itch in the Games menu (Steam plus plain wine only), dock, desktop widgets, hot corners, screen-time tracker, dmenu mode / plugin providers, translator, video wallpaper, configurable bar, power profile, dark/light toggle. Nightlight: not now.
 
 Reference projects (read-only, for ideas): end-4/dots-hyprland, JaKooLit/Hyprland-Dots, HyDE-Project/HyDE, mylinuxforwork/dotfiles (ML4W), diinki/linux-retroism.
