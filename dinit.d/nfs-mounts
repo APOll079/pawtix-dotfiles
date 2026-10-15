@@ -1,0 +1,12 @@
+# dinit user service: mount the two NFS drives at login, once the network is up
+# (~/.config/dinit.d/nfs-mounts). fstab's boot-time mount doesn't wait for the network under dinit
+# (_netdev does nothing here), so those entries are noauto and this mounts them instead.
+#
+# /etc/fstab needs "noauto,user,exec" on both NFS lines: noauto = not at boot, user = you may mount
+# them without root (that also makes them noexec/nosuid/nodev, "exec" turns exec back on).
+# Enable once: dinitctl --user enable nfs-mounts   (starts it now and at every login)
+type = scripted
+# nm-online waits (up to 60 s) until NetworkManager is connected. mount uses the fstab options; "bg"
+# keeps retrying in the background when the server isn't up yet. Always succeeds (like nofail).
+command = sh -c "nm-online -q -t 60; mountpoint -q /mnt/disk1 || mount /mnt/disk1; mountpoint -q /mnt/disk2 || mount /mnt/disk2; true"
+start-timeout = 120

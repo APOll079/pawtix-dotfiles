@@ -17,3 +17,4 @@ user pipewire         pipewire-dinit
 user pipewire-pulse   pipewire-pulse-dinit
 user wireplumber      wireplumber-dinit
 user spotifyd         -                   # service file comes from this repo (dinit.d/spotifyd)
+user nfs-mounts       -                   # service file from this repo (dinit.d/nfs-mounts); needs the noauto,user,exec fstab options

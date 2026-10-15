@@ -83,5 +83,6 @@ nwg-look                    # GTK settings tool (rewrites gtk-3.0/settings.ini)
 solaar
 docker
 sqlitebrowser
+nfs-utils                   # the NFS drives (dinit.d/nfs-mounts)
 evtest
 wev
